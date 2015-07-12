@@ -5,8 +5,9 @@ var io = require('socket.io')(http);
 var client = require('mongodb').MongoClient;
 var winston = require('winston');
 //var config = require ('./config/config.json');
-var url="mongodb://localhost:8900";
-var port="8080";
+var server_config = require('../config/server-config.json');
+var url=server_config['url'];
+var port=server_config['port'];
 
 
 

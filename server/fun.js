@@ -1,14 +1,21 @@
-ph = require('password-hash');
-
-
-
-
+var jwt = require('jsonwebtoken');
+var fs = require('fs');
+var pwconfig = require('../config/pwconfig.json');
 module.exports=function(socket,db,io){
 
 
   var users = db.collection('users');
   var documents = db.collection('documents');
-
+  var username = 'guest';
+  var userinfo = {'username' : 'guest'};
+  var key = pwconfig['key'];
+  //console.log(key);
+  var findByName = function(name,callback){
+    users.findOne({'username' : name },function(err,doce){
+      userinfo = doce;
+    });
+    callback();
+  }
   return{
     hello : function(){
       console.log('client say hello');
@@ -20,15 +27,19 @@ module.exports=function(socket,db,io){
           socket.emit('misspw');
         }
       }else{
-        
-        users.insert([userinfo],function(err,result){
-          //console.log('new user added');
-          /**users.find({}).toArray(function(err,docs){
-            console.log("Found the following records");
-            console.dir(docs);
-          });**/
+        users.findOne({'username' : userinfo['username']},function(err,doce){
+          if(doce == null){
+            users.insert(userinfo,function(err,res){});
+          }else{
+            socket.emit('namebeenused');
+          }
         });
-      }
-    },
+      }/**
+      findByName('langwang',function(){
+        console.log(userinfo);
+      });**/
+
+      //users.remove({},function(err,res){});
+    }
   }
 }
